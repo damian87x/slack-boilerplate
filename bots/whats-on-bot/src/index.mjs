@@ -52,6 +52,7 @@ app.message("hey", async ({ command, say }) => {
 
 const expressApp = express();
 expressApp.use(bodyParser.json());
+<<<<<<< HEAD
 
 expressApp.post('/webhook', async (req, res) => {
   const { body } = req;
@@ -75,6 +76,8 @@ expressApp.post('/webhook', async (req, res) => {
   res.status(200).send('Webhook received');
 });
 
+=======
+>>>>>>> 6982172 (feat: add sample bot with jira integration)
 expressApp.listen(3001, () => {
   console.log('Express server is running on port 3001');
 });
