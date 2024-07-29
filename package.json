@@ -5,7 +5,7 @@
   "scripts": {
     "setup": "npm run install-all && npx husky install",
     "setup:all": "npm run setup && sh ./scripts/setup-libs.sh",
-    "prepare": "husky install",
+    "prepare": "husky",
     "install-all": "npm install --workspaces",
     "build": "npx tsc -b",
     "lint": "npx eslint 'packages/**/*.ts' 'bots/**/*.ts' 'workflows/**/*.ts'",
@@ -20,6 +20,8 @@
   "author": "Damian Borek",
   "license": "ISC",
   "devDependencies": {
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.0",
