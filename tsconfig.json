@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "outDir": "./dist",
+      "rootDir": "./",
+      "composite": true,
+      "module": "commonjs",
+      "target": "es6",
+      "moduleResolution": "node",
+      "strict": true,
+      "esModuleInterop": true
+    },
+    "include": ["bots/**/*.ts", "packages/**/*.ts", "workflows/**/*.ts"],
+    "exclude": ["node_modules", "dist"]
+  }

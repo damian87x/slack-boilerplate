@@ -1,0 +1,37 @@
+{
+  "name": "@nhs/slack-boilerplate",
+  "version": "1.0.0",
+  "description": "A boilerplate for Slack bots and workflows",
+  "scripts": {
+    "setup": "npm run install-all && npx husky install",
+    "setup:all": "npm run setup && sh ./scripts/setup-libs.sh",
+    "prepare": "husky install",
+    "install-all": "npm install --workspaces",
+    "build": "npx tsc -b",
+    "lint": "npx eslint 'packages/**/*.ts' 'bots/**/*.ts' 'workflows/**/*.ts'",
+    "format": "npx prettier --write 'bots/**/*.ts' 'packages/**/*.ts' 'workflows/**/*.ts'"
+  },
+  "workspaces": [
+    "bots/*",
+    "workflows/*",
+    "packages/*"
+  ],
+  "keywords": [],
+  "author": "Damian Borek",
+  "license": "ISC",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "husky": "^9.1.4",
+    "lint-staged": "^15.2.7",
+    "ngrok": "^5.0.0-beta.2",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4"
+  },
+  "lint-staged": {
+    "packages/**/*.{ts,js}": "prettier --write"
+  }
+}
