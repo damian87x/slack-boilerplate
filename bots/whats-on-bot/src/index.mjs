@@ -52,6 +52,29 @@ app.message("hey", async ({ command, say }) => {
 
 const expressApp = express();
 expressApp.use(bodyParser.json());
+
+expressApp.post('/webhook', async (req, res) => {
+  const { body } = req;
+  console.log('Webhook received:', body);
+
+  if (body.issue) {
+    const issue = body.issue;
+    const message = `Issue ${issue.key} updated: ${issue.fields.summary}`;
+
+    try {
+      await app.client.chat.postMessage({
+        // TOOD: Update channel to be handled from the config.
+        channel: '#jira_notifications',
+        text: message,
+      });
+    } catch (error) {
+      console.error('Error posting message to Slack:', error);
+    }
+  }
+
+  res.status(200).send('Webhook received');
+});
+
 expressApp.listen(3001, () => {
   console.log('Express server is running on port 3001');
 });
