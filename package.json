@@ -12,7 +12,7 @@
     "prepare": "husky",
 =======
     "setup:all": "npm run setup && sh ./scripts/setup-libs.sh",
-    "prepare": "husky install",
+    "prepare": "husky",
     "install-all": "npm install --workspaces",
 >>>>>>> dcfb558 (chore: setup)
     "build": "npx tsc -b",
@@ -29,10 +29,15 @@
   "license": "ISC",
   "devDependencies": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
 =======
 >>>>>>> dcfb558 (chore: setup)
+=======
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+>>>>>>> 54f0ad2 (chore: add husky)
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.0",
