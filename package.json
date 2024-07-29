@@ -5,6 +5,7 @@
   "scripts": {
     "setup": "npm run install-all && npx husky install",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "setup:libs": "sh ./scripts/setup-libs.sh",
     "proxy": "ngrok http 3000",
     "install-all": "npm install --workspaces  --if-present",
@@ -15,6 +16,12 @@
     "prepare": "husky",
     "install-all": "npm install --workspaces",
 >>>>>>> dcfb558 (chore: setup)
+=======
+    "setup:libs": "sh ./scripts/setup-libs.sh",
+    "proxy": "ngrok http 3000",
+    "install-all": "npm install --workspaces",
+    "prepare": "husky",
+>>>>>>> 88766b6 (chore: add proxy to command line)
     "build": "npx tsc -b",
     "lint": "npx eslint 'packages/**/*.ts' 'bots/**/*.ts' 'workflows/**/*.ts'",
     "format": "npx prettier --write 'bots/**/*.ts' 'packages/**/*.ts' 'workflows/**/*.ts'"
