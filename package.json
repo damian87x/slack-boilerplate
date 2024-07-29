@@ -6,7 +6,8 @@
     "setup": "npm run install-all && npx husky install",
     "setup:libs": "sh ./scripts/setup-libs.sh",
     "proxy": "ngrok http 3000",
-    "install-all": "npm install --workspaces",
+    "install-all": "npm install --workspaces  --if-present",
+    "clanup": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'package-lock.json' -delete && npm cache clean --force && npm install",
     "prepare": "husky",
     "build": "npx tsc -b",
     "lint": "npx eslint 'packages/**/*.ts' 'bots/**/*.ts' 'workflows/**/*.ts'",
@@ -35,6 +36,9 @@
     "typescript": "^5.5.4"
   },
   "lint-staged": {
-    "packages/**/*.{ts,js}": "prettier --write"
+    "packages/**/*.{ts,js,mjs}": "prettier --write"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2"
   }
 }

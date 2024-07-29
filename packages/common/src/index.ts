@@ -1,1 +1,1 @@
-console.log('common');
+export * from './services/jira';
