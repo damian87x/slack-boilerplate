@@ -4,9 +4,10 @@
   "description": "A boilerplate for Slack bots and workflows",
   "scripts": {
     "setup": "npm run install-all && npx husky install",
-    "setup:all": "npm run setup && sh ./scripts/setup-libs.sh",
-    "prepare": "husky",
+    "setup:libs": "sh ./scripts/setup-libs.sh",
+    "proxy": "ngrok http 3000",
     "install-all": "npm install --workspaces",
+    "prepare": "husky",
     "build": "npx tsc -b",
     "lint": "npx eslint 'packages/**/*.ts' 'bots/**/*.ts' 'workflows/**/*.ts'",
     "format": "npx prettier --write 'bots/**/*.ts' 'packages/**/*.ts' 'workflows/**/*.ts'"
