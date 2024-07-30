@@ -4,25 +4,11 @@
   "description": "A boilerplate for Slack bots and workflows",
   "scripts": {
     "setup": "npm run install-all && npx husky install",
-<<<<<<< HEAD
-<<<<<<< HEAD
     "setup:libs": "sh ./scripts/setup-libs.sh",
     "proxy": "ngrok http 3000",
     "install-all": "npm install --workspaces  --if-present",
     "clanup": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'package-lock.json' -delete && npm cache clean --force && npm install",
     "prepare": "husky",
-=======
-    "setup:all": "npm run setup && sh ./scripts/setup-libs.sh",
-    "prepare": "husky",
-    "install-all": "npm install --workspaces",
->>>>>>> dcfb558 (chore: setup)
-=======
-    "setup:libs": "sh ./scripts/setup-libs.sh",
-    "proxy": "ngrok http 3000",
-    "install-all": "npm install --workspaces  --if-present",
-    "clanup": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'package-lock.json' -delete && npm cache clean --force && npm install",
-    "prepare": "husky",
->>>>>>> 88766b6 (chore: add proxy to command line)
     "build": "npx tsc -b",
     "lint": "npx eslint 'packages/**/*.ts' 'bots/**/*.ts' 'workflows/**/*.ts'",
     "format": "npx prettier --write 'bots/**/*.ts' 'packages/**/*.ts' 'workflows/**/*.ts'"
@@ -36,16 +22,8 @@
   "author": "Damian Borek",
   "license": "ISC",
   "devDependencies": {
-<<<<<<< HEAD
-<<<<<<< HEAD
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
-=======
->>>>>>> dcfb558 (chore: setup)
-=======
-    "@commitlint/cli": "^19.3.0",
-    "@commitlint/config-conventional": "^19.2.2",
->>>>>>> 54f0ad2 (chore: add husky)
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.0",
@@ -58,19 +36,9 @@
     "typescript": "^5.5.4"
   },
   "lint-staged": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 6982172 (feat: add sample bot with jira integration)
     "packages/**/*.{ts,js,mjs}": "prettier --write"
   },
   "dependencies": {
     "body-parser": "^1.20.2"
-<<<<<<< HEAD
-=======
-    "packages/**/*.{ts,js}": "prettier --write"
->>>>>>> dcfb558 (chore: setup)
-=======
->>>>>>> 6982172 (feat: add sample bot with jira integration)
   }
 }
