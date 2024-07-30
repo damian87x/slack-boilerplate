@@ -18,7 +18,7 @@ const app = new App({
   appToken: process.env.SLACK_APP_TOKEN
 });
 
-app.command('/setup-webhook', async ({ command, ack, respond }) => {
+app.command('/setup-webhook-for-jira', async ({ command, ack, respond }) => {
   await ack();
   const channelId = command.channel_id;
 

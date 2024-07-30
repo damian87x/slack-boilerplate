@@ -1,6 +1,7 @@
 # slack-boilerplate
 
 ## Pre Setup
+`npm run `
 
 ## Installation 
 
