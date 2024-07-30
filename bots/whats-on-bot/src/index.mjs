@@ -3,7 +3,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import { getJiraClient } from '@nhs/common';
-import { initializeDB, readDB, writeDB } from './data/db.mjs';
+import db, { initializeDB, readDB, writeDB } from './data/db.mjs';
 
 dotenv.config();
 
@@ -27,31 +27,40 @@ app.command('/authenticate-to-jira', async ({ command, ack, respond }) => {
   await ack();
   const userId = command.user_id;
   const jiraBaseUrl = `${process.env.JIRA_BASE_URL}/rest/api/3`;
-  const jiraClient = getJiraClient(jiraBaseUrl);
+  const jiraClient = getJiraClient(jiraBaseUrl, JIRA_SECRET);
 
   try {
-    const user = await jiraClient.getUserByEmail(command.text, JIRA_SECRET);
-    console.log('User:', user);
+    const jiraId = await jiraClient.getUserByEmail(command.text, JIRA_SECRET);
 
-    await writeDB(db => {
-      db.users[userId] = user.accountId;
-    });
-    console.log('Authenticated user:', user);
+    if(!jiraId) {
+      await respond('Failed to find user from Jira');
+      return;
+    }
+
+    await readDB();
+    db.users = db.users || {};
+    db.users[userId] = jiraId;
+    await writeDB();
+    console.log(db.users);
     await respond('Successfully authenticated to Jira');
   } catch (error) {
     await respond('Failed to authenticate to Jira');
   }
 });
 
-app.command('/whats-on', async ({ command, ack, respond }) => {
+app.command('/whats-on-v2', async ({ command, ack, respond }) => {
   await ack();
 
-  const userId = command.user_id;
+  const userSlackId = command.user_id;
+  await readDB();
+  console.log(db.users);
+
+  const userJiraId = db.users[userSlackId];
   const jiraBaseUrl = `${process.env.JIRA_BASE_URL}/rest/api/2`;
-  const jiraClient = getJiraClient(jiraBaseUrl);
+  const jiraClient = getJiraClient(jiraBaseUrl, JIRA_SECRET);
 
   try {
-    const tickets = await jiraClient.search(`assignee=${encodeURIComponent(userId)}`, JIRA_SECRET);
+    const tickets = await jiraClient.search(`assignee=${encodeURIComponent(userJiraId)}`, JIRA_SECRET);
     const response = tickets.map(ticket => 
       `*${ticket.id}* - ${ticket.summary}\nStatus: ${ticket.status}\nPriority: ${ticket.priority}\nAssignee: ${ticket.assignee || 'Unassigned'}`
     ).join('\n\n');

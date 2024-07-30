@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@nhs/common": "1.0.0",
-    "@slack/bolt": "^3.19.0",
+    "@slack/bolt": "https://github.com/slackapi/bolt-js",
     "axios": "^1.7.2",
     "body-parser": "^1.20.2",
     "dotenv": "^16.4.5",

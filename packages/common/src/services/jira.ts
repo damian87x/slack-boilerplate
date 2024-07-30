@@ -29,7 +29,7 @@ export const getJiraClient = (
     getUserByEmail: async (email: string): Promise<string> => {
       try {
         const response = await instance.get(`/user/search?query=${email}`);
-        console.log('response', response.data);
+
         return response.data[0].accountId;
       } catch (error) {
         console.error('Error fetching Jira user:', error);
