@@ -35,11 +35,10 @@ app.command('/setup-webhook-for-jira', async ({ command, ack, respond }) => {
 
 app.command('/whats-on', async ({ command, ack, respond }) => {
   await ack();
+
   const userId = command.user_id;
   const jiraBaseUrl = `${process.env.JIRA_BASE_URL}/rest/api/2`;
   const jiraClient = getJiraClient(jiraBaseUrl);
-
-  console.log('command', command);
 
   try {
     const tickets = await jiraClient.search(`assignee=${encodeURIComponent(userId)}`, JIRA_SECRET);
@@ -70,7 +69,7 @@ app.message("hey", async ({ message, say }) => {
 const expressApp = express();
 expressApp.use(bodyParser.json());
 
-expressApp.post('/webhook', async (req, res) => {
+expressApp.get('/webhook', async (req, res) => {
   const { body } = req;
   console.log('Webhook received:', body);
 

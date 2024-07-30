@@ -5,7 +5,7 @@
   "scripts": {
     "setup": "npm run install-all && npx husky install",
     "setup:libs": "sh ./scripts/setup-libs.sh",
-    "proxy": "ngrok http 3000",
+    "proxy": "ngrok http 3001",
     "install-all": "npm install --workspaces  --if-present",
     "clanup": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'package-lock.json' -delete && npm cache clean --force && npm install",
     "prepare": "husky",
