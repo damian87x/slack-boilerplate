@@ -10,6 +10,7 @@ interface JiraTicket {
 
 interface JiraClient {
   search: (jql: string) => Promise<JiraTicket[]>;
+  getUserByEmail: (email: string) => Promise<string>;
 }
 
 export const getJiraClient = (
@@ -25,6 +26,16 @@ export const getJiraClient = (
   });
 
   return {
+    getUserByEmail: async (email: string): Promise<string> => {
+      try {
+        const response = await instance.get(`/user/search?query=${email}`);
+        console.log('response', response.data);
+        return response.data[0].accountId;
+      } catch (error) {
+        console.error('Error fetching Jira user:', error);
+        throw new Error('Failed to fetch Jira user');
+      }
+    },
     search: async (jql: string): Promise<JiraTicket[]> => {
       try {
         const response = await instance.get('/search', {

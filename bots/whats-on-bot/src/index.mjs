@@ -18,18 +18,28 @@ const app = new App({
   appToken: process.env.SLACK_APP_TOKEN
 });
 
-app.command('/setup-webhook-for-jira', async ({ command, ack, respond }) => {
+// TODO:
+// 1. Add command to configure bot 
+//as user will add email and bot will figure out jira id 
+//we store in bot - slack id we match slack id with jira id in our database
+//API to get profile: https://nhshackathon.atlassian.net/rest/api/3/user/search?query=damien.borek1@nhs.net 
+app.command('/authenticate-to-jira', async ({ command, ack, respond }) => {
   await ack();
-  const channelId = command.channel_id;
+  const userId = command.user_id;
+  const jiraBaseUrl = `${process.env.JIRA_BASE_URL}/rest/api/3`;
+  const jiraClient = getJiraClient(jiraBaseUrl);
 
   try {
-    const dbData = await readDB();
-    dbData.webhookConfig = { channelId };
-    await writeDB();
+    const user = await jiraClient.getUserByEmail(command.text, JIRA_SECRET);
+    console.log('User:', user);
 
-    await respond(`Webhook notifications will be sent to <#${channelId}>`);
+    await writeDB(db => {
+      db.users[userId] = user.accountId;
+    });
+    console.log('Authenticated user:', user);
+    await respond('Successfully authenticated to Jira');
   } catch (error) {
-    await respond('Failed to set up webhook channel');
+    await respond('Failed to authenticate to Jira');
   }
 });
 
@@ -57,6 +67,21 @@ app.message("hey", async ({ message, say }) => {
   } catch (error) {
     console.log("err")
     console.error(error);
+  }
+});
+
+app.command('/setup-webhook-for-jira', async ({ command, ack, respond }) => {
+  await ack();
+  const channelId = command.channel_id;
+
+  try {
+    const dbData = await readDB();
+    dbData.webhookConfig = { channelId };
+    await writeDB();
+
+    await respond(`Webhook notifications will be sent to <#${channelId}>`);
+  } catch (error) {
+    await respond('Failed to set up webhook channel');
   }
 });
 
