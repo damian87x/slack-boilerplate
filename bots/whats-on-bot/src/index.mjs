@@ -2,24 +2,15 @@ import pkg from '@slack/bolt';
 import express from 'express';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
+import db, { initializeDB, readDB, writeDB } from './data/db.mjs';
 import { getJiraClient } from './jira.mjs';
 import { getSlackApiClient } from './slack.mjs';
-import { initializeDB, readDB, writeDB } from './data/db.mjs';
 
-
-
-
-
-dotenv.config()
-
-
+dotenv.config();
 
 const { App } = pkg;
 
-
-
 const JIRA_SECRET = process.env.JIRA_SECRET || '';
-console.log("blah " + process.env.SLACK_APP_TOKEN)
 
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -35,53 +26,60 @@ const app = new App({
 //API to get profile: https://nhshackathon.atlassian.net/rest/api/3/user/search?query=damien.borek1@nhs.net 
 app.command('/authenticate-to-jira', async ({ command, ack, respond }) => {
   await ack();
+  console.log('it works');
   const userId = command.user_id;
   const jiraBaseUrl = `${process.env.JIRA_BASE_URL}/rest/api/3`;
-  const jiraClient = getJiraClient(jiraBaseUrl);
+  const jiraClient = getJiraClient(jiraBaseUrl, JIRA_SECRET);
 
   try {
-    const user = await jiraClient.getUserByEmail(command.text, JIRA_SECRET);
-    console.log('User:', user);
+    const jiraId = await jiraClient.getUserByEmail(command.text, JIRA_SECRET);
 
-    await writeDB(db => {
-      db.users[userId] = user.accountId;
-    });
-    console.log('Authenticated user:', user);
+    if(!jiraId) {
+      await respond('Failed to find user from Jira');
+      return;
+    }
+
+
+    await readDB();
+    db.users = db.users || {};
+    db.users[userId] = jiraId;
+    await writeDB();
+    console.log(db.users);
     await respond('Successfully authenticated to Jira');
   } catch (error) {
+    console.error(error);
     await respond('Failed to authenticate to Jira');
   }
 });
 
-app.command('/whats-off', async ({ command, ack, respond }) => {
+app.command('/whats-on-v2', async ({ command, ack, respond }) => {
   await ack();
 
-   const userId = command.user_id;
-   const jiraBaseUrl = `${process.env.JIRA_BASE_URL}/rest/api/2`;
-   const jiraClient = getJiraClient(jiraBaseUrl);
+  const userSlackId = command.user_id;
+  await readDB();
+
+  const userJiraId = db.users[userSlackId];
+  const jiraBaseUrl = `${process.env.JIRA_BASE_URL}/rest/api/2`;
+  const jiraClient = getJiraClient(jiraBaseUrl, JIRA_SECRET);
 
   try {
-    const tickets = await jiraClient.search(`assignee IN (6332b05197148a8301fc51eb)`, JIRA_SECRET);
-    
+//     const tickets = await jiraClient.search(`assignee IN (6332b05197148a8301fc51eb)`, JIRA_SECRET);
+    const tickets = await jiraClient.search(`assignee = ${userJiraId} and sprint in openSprints()`, JIRA_SECRET);
+
     let response = '';
-    const ticketRows = tickets.map(ticket => 
+    const ticketRows = tickets.map(ticket =>
       `## 🎟️ [${ticket.id}](https://nhshackathon.atlassian.net/browse/${ticket.id}) - ${ticket.summary}\n* 📝: ${ticket.status}\n* 🔺: ${ticket.priority}\n* 🙋: ${ticket.assignee || 'Unassigned'}`
     ).join('\n');
-    
-    
+
     response = response + ticketRows;
 
     const slackBaseUrl = `${process.env.SLACK_BASE_URL}`;
-
     const slackClient = getSlackApiClient(slackBaseUrl, app, command.team_id, command.channel_id)
-
-
-    await slackClient.createCanvas("What have I got on today?", response, userId);
-    
-
+    await slackClient.createCanvas("What have I got on today?", response, userSlackId);
 
     await respond(response);
   } catch (error) {
+    console.error(error);
     await respond('Failed to fetch Jira tickets');
   }
 });

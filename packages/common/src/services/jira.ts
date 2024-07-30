@@ -29,7 +29,7 @@ export const getJiraClient = (
     getUserByEmail: async (email: string): Promise<string> => {
       try {
         const response = await instance.get(`/user/search?query=${email}`);
-        console.log('response', response.data);
+
         return response.data[0].accountId;
       } catch (error) {
         console.error('Error fetching Jira user:', error);
@@ -41,6 +41,8 @@ export const getJiraClient = (
         const response = await instance.get('/search', {
           params: { jql },
         });
+
+        console.log('response', response);
 
         return response.data.issues.map((issue: any) => ({
           id: issue.key,

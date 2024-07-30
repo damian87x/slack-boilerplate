@@ -7,12 +7,22 @@ export const getJiraClient = (
   const instance = axios.create({
     baseURL: baseUrl,
     headers: {
-      Authorization: 'Basic dGhvbWFzLnBlZGxleTFAbmhzLm5ldDpBVEFUVDN4RmZHRjA2Y2J5TGl6d1BlaDF0WThPWjRudklycjZSODhGNjFoRnlNb1NPd19WNERqdTBGNTNCSXM5TG95U2lDODVmVzUtQ0IyOUhDVDZRelN2UEdOa0M0QWlNU0dieV91N0xWdDE4MnN4VGRPNnZjOVdRR0QzeVA2QWJCN1FJSnhDZk4xbWNSMjE0cURDcUc4bW43M3VncXhHcnlvQ2VCampsd3FkLVo3MG1pS3R4Mzg9NUEyMzVGREI=',
+      Authorization: `Basic ${authToken}`,
       'Content-Type': 'application/json',
     },
   });
 
   return {
+    getUserByEmail: async (email) => {
+      try {
+        const response = await instance.get(`/user/search?query=${email}`);
+
+        return response.data[0].accountId;
+      } catch (error) {
+        console.error('Error fetching Jira user:', error);
+        throw new Error('Failed to fetch Jira user');
+      }
+    },
     search: async (jql) => {
       try {
         const response = await instance.get('/search', {
