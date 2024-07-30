@@ -1,7 +1,9 @@
 # slack-boilerplate
+This boilerplate contains start setup for Slack Bots and workflow automotions
 
 ## Pre Setup
 `npm run setup:libs`
+
 `npm run setup`
 
 ## Installation 
@@ -17,4 +19,5 @@ To create a new Slack app follow below steps —
 
 ## Local example 
 `cd bots/whats-on-bot`
+
 `npm run dev`
