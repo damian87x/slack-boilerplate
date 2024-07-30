@@ -3,6 +3,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import { getJiraClient } from '@nhs/common';
+import { initializeDB, readDB, writeDB } from './data/db.mjs';
 
 dotenv.config();
 
@@ -13,8 +14,23 @@ const JIRA_SECRET = process.env.JIRA_SECRET || '';
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
-  socketMode:true, 
+  socketMode: true,
   appToken: process.env.SLACK_APP_TOKEN
+});
+
+app.command('/setup-webhook', async ({ command, ack, respond }) => {
+  await ack();
+  const channelId = command.channel_id;
+
+  try {
+    const dbData = await readDB();
+    dbData.webhookConfig = { channelId };
+    await writeDB();
+
+    await respond(`Webhook notifications will be sent to <#${channelId}>`);
+  } catch (error) {
+    await respond('Failed to set up webhook channel');
+  }
 });
 
 app.command('/whats-on', async ({ command, ack, respond }) => {
@@ -36,16 +52,17 @@ app.command('/whats-on', async ({ command, ack, respond }) => {
   }
 });
 
-app.message("hey", async ({ command, say }) => {
+app.message("hey", async ({ message, say }) => {
   try {
     say("Hello Human!");
   } catch (error) {
-      console.log("err")
+    console.log("err")
     console.error(error);
   }
 });
 
 (async () => {
+  await initializeDB({ posts: [], webhookConfig: {} });
   await app.start(process.env.PORT || 3000);
   console.log('⚡️ Bolt app is running on port 3000!');
 })();
@@ -57,22 +74,25 @@ expressApp.post('/webhook', async (req, res) => {
   const { body } = req;
   console.log('Webhook received:', body);
 
-  if (body.issue) {
-    const issue = body.issue;
-    const message = `Issue ${issue.key} updated: ${issue.fields.summary}`;
+  try {
+    const dbData = await readDB();
+    const channelId = dbData.webhookConfig.channelId;
 
-    try {
+    if (body.issue && channelId) {
+      const issue = body.issue;
+      const message = `Issue ${issue.key} updated: ${issue.fields.summary}`;
+
       await app.client.chat.postMessage({
-        // TOOD: Update channel to be handled from the config.
-        channel: '#jira_notifications',
+        channel: channelId,
         text: message,
       });
-    } catch (error) {
-      console.error('Error posting message to Slack:', error);
     }
-  }
 
-  res.status(200).send('Webhook received');
+    res.status(200).send('Webhook received');
+  } catch (error) {
+    console.error('Error handling webhook:', error);
+    res.status(500).send('Error handling webhook');
+  }
 });
 
 expressApp.listen(3001, () => {
