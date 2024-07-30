@@ -42,6 +42,8 @@ export const getJiraClient = (
           params: { jql },
         });
 
+        console.log('response', response);
+
         return response.data.issues.map((issue: any) => ({
           id: issue.key,
           summary: issue.fields.summary,

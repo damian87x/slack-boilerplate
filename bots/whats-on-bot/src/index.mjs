@@ -60,12 +60,11 @@ app.command('/whats-on-v2', async ({ command, ack, respond }) => {
   const jiraClient = getJiraClient(jiraBaseUrl, JIRA_SECRET);
 
   try {
-    const tickets = await jiraClient.search(`assignee=${encodeURIComponent(userJiraId)}`, JIRA_SECRET);
-    const response = tickets.map(ticket => 
-      `*${ticket.id}* - ${ticket.summary}\nStatus: ${ticket.status}\nPriority: ${ticket.priority}\nAssignee: ${ticket.assignee || 'Unassigned'}`
-    ).join('\n\n');
-    await respond(response);
+    const tickets = await jiraClient.search(`assignee=${userJiraId}`, JIRA_SECRET);
+    console.log('tickets', tickets);
+    await respond('Done!');
   } catch (error) {
+    console.error(error);
     await respond('Failed to fetch Jira tickets');
   }
 });
