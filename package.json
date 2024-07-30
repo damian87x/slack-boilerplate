@@ -7,7 +7,7 @@
     "setup:libs": "sh ./scripts/setup-libs.sh",
     "proxy": "ngrok http 3001",
     "install-all": "npm install --workspaces  --if-present",
-    "clanup": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'package-lock.json' -delete && npm cache clean --force && npm install",
+    "cleanup": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'package-lock.json' -delete && npm cache clean --force && npm install",
     "prepare": "husky",
     "build": "npx tsc -b",
     "lint": "npx eslint 'packages/**/*.ts' 'bots/**/*.ts' 'workflows/**/*.ts'",

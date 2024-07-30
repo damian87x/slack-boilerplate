@@ -2,14 +2,24 @@ import pkg from '@slack/bolt';
 import express from 'express';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
-import { getJiraClient } from '@nhs/common';
+import { getJiraClient } from './jira.mjs';
+import { getSlackApiClient } from './slack.mjs';
 import { initializeDB, readDB, writeDB } from './data/db.mjs';
 
-dotenv.config();
+
+
+
+
+dotenv.config()
+
+
 
 const { App } = pkg;
 
+
+
 const JIRA_SECRET = process.env.JIRA_SECRET || '';
+console.log("blah " + process.env.SLACK_APP_TOKEN)
 
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -43,18 +53,33 @@ app.command('/authenticate-to-jira', async ({ command, ack, respond }) => {
   }
 });
 
-app.command('/whats-on', async ({ command, ack, respond }) => {
+app.command('/whats-off', async ({ command, ack, respond }) => {
   await ack();
 
-  const userId = command.user_id;
-  const jiraBaseUrl = `${process.env.JIRA_BASE_URL}/rest/api/2`;
-  const jiraClient = getJiraClient(jiraBaseUrl);
+   const userId = command.user_id;
+   const jiraBaseUrl = `${process.env.JIRA_BASE_URL}/rest/api/2`;
+   const jiraClient = getJiraClient(jiraBaseUrl);
 
   try {
-    const tickets = await jiraClient.search(`assignee=${encodeURIComponent(userId)}`, JIRA_SECRET);
-    const response = tickets.map(ticket => 
-      `*${ticket.id}* - ${ticket.summary}\nStatus: ${ticket.status}\nPriority: ${ticket.priority}\nAssignee: ${ticket.assignee || 'Unassigned'}`
-    ).join('\n\n');
+    const tickets = await jiraClient.search(`assignee IN (6332b05197148a8301fc51eb)`, JIRA_SECRET);
+    
+    let response = '';
+    const ticketRows = tickets.map(ticket => 
+      `## 🎟️ [${ticket.id}](https://nhshackathon.atlassian.net/browse/${ticket.id}) - ${ticket.summary}\n* 📝: ${ticket.status}\n* 🔺: ${ticket.priority}\n* 🙋: ${ticket.assignee || 'Unassigned'}`
+    ).join('\n');
+    
+    
+    response = response + ticketRows;
+
+    const slackBaseUrl = `${process.env.SLACK_BASE_URL}`;
+
+    const slackClient = getSlackApiClient(slackBaseUrl, app, command.team_id, command.channel_id)
+
+
+    await slackClient.createCanvas("What have I got on today?", response, userId);
+    
+
+
     await respond(response);
   } catch (error) {
     await respond('Failed to fetch Jira tickets');
