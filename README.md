@@ -1,9 +1,11 @@
 # slack-boilerplate
 
 ## Pre Setup
-`npm run `
+`npm run setup:libs`
+`npm run setup`
 
 ## Installation 
+`npm run install-all`
 
 ## Setup bot
 To create a new Slack app follow below steps —
@@ -13,6 +15,6 @@ To create a new Slack app follow below steps —
 4. Give your app a name and select the workspace you want to add it to.
 5. Once you’ve done that, you should be redirected to the Basic Information page of your app.
 
-## Usage
-
-## Local
+## Local example 
+`cd bots/whats-on-bot`
+`npm run dev`
