@@ -24,9 +24,9 @@ const app = new App({
 //as user will add email and bot will figure out jira id 
 //we store in bot - slack id we match slack id with jira id in our database
 //API to get profile: https://nhshackathon.atlassian.net/rest/api/3/user/search?query=damien.borek1@nhs.net 
-app.command('/authenticate-to-jira', async ({ command, ack, respond }) => {
+const authenticate = async ({ command, ack, respond }) => {
   await ack();
-  console.log('it works');
+  
   const userId = command.user_id;
   const jiraBaseUrl = `${process.env.JIRA_BASE_URL}/rest/api/3`;
   const jiraClient = getJiraClient(jiraBaseUrl, JIRA_SECRET);
@@ -50,9 +50,10 @@ app.command('/authenticate-to-jira', async ({ command, ack, respond }) => {
     console.error(error);
     await respond('Failed to authenticate to Jira');
   }
-});
+}
 
-app.command('/whats-on-v2', async ({ command, ack, respond }) => {
+
+const getTickets = async ({ command, ack, respond }) => {
   await ack();
 
   const userSlackId = command.user_id;
@@ -64,25 +65,63 @@ app.command('/whats-on-v2', async ({ command, ack, respond }) => {
 
   try {
 //     const tickets = await jiraClient.search(`assignee IN (6332b05197148a8301fc51eb)`, JIRA_SECRET);
-    const tickets = await jiraClient.search(`assignee = ${userJiraId} and sprint in openSprints()`, JIRA_SECRET);
+    //const tickets = await jiraClient.search(`assignee = ${userJiraId} and sprint in openSprints()`, JIRA_SECRET);
+    const tickets = await jiraClient.search(`assignee = ${userJiraId}`, JIRA_SECRET);
 
     let response = '';
     const ticketRows = tickets.map(ticket =>
-      `## 🎟️ [${ticket.id}](https://nhshackathon.atlassian.net/browse/${ticket.id}) - ${ticket.summary}\n* 📝: ${ticket.status}\n* 🔺: ${ticket.priority}\n* 🙋: ${ticket.assignee || 'Unassigned'}`
+      `## 📝 [${ticket.id}](${process.env.JIRA_BASE_URL}/browse/${ticket.id}) - ${ticket.summary}\n* ${getStatusIcon(ticket.status)}: ${ticket.status}\n* ${getPriorityIcon(ticket.priority)}: ${ticket.priority}\n* 🙋: ${ticket.assignee || 'Unassigned'}`
     ).join('\n');
 
     response = response + ticketRows;
 
     const slackBaseUrl = `${process.env.SLACK_BASE_URL}`;
     const slackClient = getSlackApiClient(slackBaseUrl, app, command.team_id, command.channel_id)
-    await slackClient.createCanvas("What have I got on today?", response, userSlackId);
 
-    await respond(response);
+
+    console.log("Creating a canvas");
+    await slackClient.createCanvas("What have I got on today?", response);
   } catch (error) {
     console.error(error);
     await respond('Failed to fetch Jira tickets');
   }
-});
+};
+
+function getPriorityIcon(priority) {
+  switch(priority) {
+    case 'Highest':
+      return "‼️";
+    case 'High':
+      return "🔺";
+    case 'Medium':
+      return "🔸";
+    case 'Low':
+      return "🟢";
+    case 'Lowest':
+      return "🔵";
+    default:
+      return "?";
+  }
+}
+
+function getStatusIcon(status) {
+  switch(status) {
+    case 'Done':
+      return "✅";
+    case 'In Progress':
+      return "💪";
+    case 'To Do':
+      return "🤔";
+    default:
+      return "?";
+  }
+}
+
+app.command('/authenticate-to-jira', authenticate)
+app.command('/auth', authenticate)
+
+app.command('/whats-on-v2', getTickets);
+app.command('/whats-off', getTickets);
 
 app.message("hey", async ({ message, say }) => {
   try {

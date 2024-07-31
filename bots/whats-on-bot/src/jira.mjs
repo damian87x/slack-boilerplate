@@ -37,7 +37,55 @@ export const getJiraClient = (
             ? issue.fields.assignee.displayName
             : null,
           priority: issue.fields.priority.name,
-        }));
+          gravatar: issue.fields.reporter.avatarUrls['48x48']
+        })).sort((a, b) => {
+            let aPriority = 0;
+            let bPriority = 0;
+            if(a.priority == b.priority) return 0;
+            switch(a.priority) {
+                case 'Highest':
+                    aPriority = 5;
+                    break;
+                case 'High':
+                    aPriority = 4;
+                    break;
+                case 'Medium':
+                    aPriority = 3;
+                    break;
+                case 'Low':
+                    aPriority = 2;
+                    break;
+                case 'Lowest':
+                    aPriority = 1;
+                    break;
+                default:
+                    aPriority = 0;
+                    break;
+            }
+
+            switch(b.priority) {
+                case 'Highest':
+                    bPriority = 5;
+                    break;
+                case 'High':
+                    bPriority = 4;
+                    break;
+                case 'Medium':
+                    bPriority = 3;
+                    break;
+                case 'Low':
+                    bPriority = 2;
+                    break;
+                case 'Lowest':
+                    bPriority = 1;
+                    break;
+                default:
+                    bPriority = 0;
+                    break;
+            }
+
+            return aPriority > bPriority ? -1 : 1;
+        });
       } catch (error) {
         console.error('Error fetching Jira tickets:', error);
         throw new Error('Failed to fetch Jira tickets');
